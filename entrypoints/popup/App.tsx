@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { HashRouter, Route, Routes, } from 'react-router-dom';
 import reactLogo from '@/assets/react.svg';
 import wxtLogo from '/wxt.svg';
 import './App.css';
@@ -11,17 +11,14 @@ import Layout from './pages/Layout';
 function App() {
   return (
     <>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route path="/" element={ <Layout/> } >
             <Route index element={ <Login /> } />          
             <Route path='/summary' element={ <SummarySettings /> } />          
           </Route>
         </Routes>
-      </BrowserRouter>
-      <div>
-        hello
-      </div>
+      </HashRouter>
     </>
   );
 }
