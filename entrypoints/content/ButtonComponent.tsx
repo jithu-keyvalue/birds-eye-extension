@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import birdsEyeLogo from '@/assets/icons/icon128.png';
 import './ButtonComponent.scss';
+import { State } from '../content';
 
-const ButtonComponent: React.FC = () => {
+// accept props in the functional component
+// const ButtonComponent: React.FC = () => {
+const ButtonComponent = ( { state } : { state:State } ) => {
   const {innerWidth, innerHeight} = window;
   const [position, setPosition] = useState({ x: innerWidth-50, y: innerHeight-50 });
   const [dragging, setDragging] = useState(false);
@@ -53,6 +56,11 @@ const ButtonComponent: React.FC = () => {
         }}
         className="floating-button"
         onMouseDown={handleMouseDown}
+        onClick={() => {
+          state.level += 1;
+          console.log(state);
+        }
+        }
       >
         <img src={birdsEyeLogo} alt="Birds Eye Logo" />
       </button>
