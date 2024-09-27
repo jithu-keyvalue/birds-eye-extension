@@ -19,13 +19,13 @@ const CustomLayout = ({ state }: { state: State }) => {
     Record<string, string>
   >(state.multiLevelNotes);
   const [level, setLevel] = React.useState<number>(state.level);
-  
+
   const [selectedOption, setSelectedOption] = useState("NOTES");
   const [selectedView, setSelectedView] = useState("CASUAL");
-  const notes = "";
+  const notes = multiLevelNotes[`${state.level}`];
   const question = "";
-  const content = "";
-  
+  const content = multiLevelSummaries[`${state.level}`];
+
   useEffect(() => {
     if (state.multiLevelSummaries) {
       setMultiLevelSummaries(state.multiLevelSummaries);
@@ -109,7 +109,11 @@ const CustomLayout = ({ state }: { state: State }) => {
           </div>
 
           <div className="summary-notes-content-wrapper">
-            <NoteSection selectedOption={selectedOption} notes={notes} question={question} />
+            <NoteSection
+              selectedOption={selectedOption}
+              notes={notes}
+              question={question}
+            />
           </div>
         </div>
         {/* <div className="summary-level-scroll">
@@ -120,65 +124,63 @@ const CustomLayout = ({ state }: { state: State }) => {
   );
 };
 
-export const NoteSection = ({selectedOption, notes, question}) => {
-    if (selectedOption === "NOTES") {
-      if (!notes)
-        return (
-          <div className="summary-note-create-container">
-            <div className="summary-note-create">
-              Create notes from the summary you have generated
-              <button className="create-note-button">
-                <img src={notesIcon} alt="notes" className="notes-icon" />
-                Generate notes
-              </button>
+export const NoteSection = ({ selectedOption, notes, question }) => {
+  if (selectedOption === "NOTES") {
+    if (!notes)
+      return (
+        <div className="summary-note-create-container">
+          <div className="summary-note-create">
+            Create notes from the summary you have generated
+            <button className="create-note-button">
+              <img src={notesIcon} alt="notes" className="notes-icon" />
+              Generate notes
+            </button>
+          </div>
+        </div>
+      );
+    else
+      return (
+        <div className="summary-notes-content">
+          <Markdown>{notes}</Markdown>
+        </div>
+      );
+  } else if (selectedOption === "QUESTIONS") {
+    if (!question)
+      return (
+        <div>
+          <div className="summary-question-create-container">
+            <div className="summary-question-create">
+              <img src={largeBirdIcon} alt="large-icon" />
+              Ask questions about summarised content, and Bird&apos;s Eye
+              answers
+              <img
+                src={swirlArrowIcon}
+                alt="arrow-icon"
+                className="arrow-icon"
+              />
             </div>
           </div>
-        );
-      else
-        return (
-          <div className="summary-notes-content">
-            asdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldknasdsadsadlasfdlseanbflnbdlkfjnlsdknfldkn
+          <div className="question-input-container">
+            <input className="question-input" placeholder="Ask me anything" />
+            <button>
+              <img src={sendIcon} alt="send-icon" />
+            </button>
           </div>
-        );
-    } else if (selectedOption === "QUESTIONS") {
-      if (!question)
-        return (
-          <div>
-            <div className="summary-question-create-container">
-              <div className="summary-question-create">
-                <img src={largeBirdIcon} alt="large-icon" />
-                Ask questions about summarised content, and Bird&apos;s Eye
-                answers
-                <img
-                  src={swirlArrowIcon}
-                  alt="arrow-icon"
-                  className="arrow-icon"
-                />
-              </div>
-            </div>
-            <div className="question-input-container">
-              <input className="question-input" placeholder="Ask me anything" />
-              <button>
-                <img src={sendIcon} alt="send-icon" />
-              </button>
-            </div>
+        </div>
+      );
+    else
+      return (
+        <div>
+          hi
+          <div className="question-input-container">
+            <input className="question-input" placeholder="Ask me anything" />
+            <button>
+              <img src={sendIcon} alt="send-icon" />
+            </button>
           </div>
-        );
-      else
-        return (
-          <div>
-            hi
-            <div className="question-input-container">
-              <input className="question-input" placeholder="Ask me anything" />
-              <button>
-                <img src={sendIcon} alt="send-icon" />
-              </button>
-            </div>
-          </div>
-        );
-    }
-  };
-
-
+        </div>
+      );
+  }
+};
 
 export default CustomLayout;

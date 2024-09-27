@@ -2,7 +2,12 @@ import { createRoot } from "react-dom/client";
 import ButtonComponent from "./content/ButtonComponent";
 import React from "react";
 import CustomLayout from "./content/CustomLayout";
-import { fetchFullArticle, fetchMultiLevelNotes, fetchMultiLevelSummaries, generateKeywordSummaries } from "./content/api";
+import {
+  fetchFullArticle,
+  fetchMultiLevelNotes,
+  fetchMultiLevelSummaries,
+  generateKeywordSummaries,
+} from "./content/api";
 
 export default defineContentScript({
   matches: ["*://*/*"],
@@ -31,10 +36,13 @@ export default defineContentScript({
       }
 
       if (message.message === "is-logged-in?") {
-        sendResponse({ message: state.isLoggedIn ? "logged-in" : "not-logged-in", level: state.level });
+        sendResponse({
+          message: state.isLoggedIn ? "logged-in" : "not-logged-in",
+          level: state.level,
+        });
         return true;
       }
-      
+
       if (message.message === "logged-in") {
         state.isLoggedIn = true;
       }
@@ -82,12 +90,12 @@ export const ContentReactRoot = ({ state }: { state: State }) => {
       try {
         const fullArticle = await fetchFullArticle(url);
         const multilevelSummaries = await fetchMultiLevelSummaries(fullArticle);
-        console.log("Multilevel Summaries:", multilevelSummaries);
+                console.log("Multilevel Summaries:", multilevelSummaries);
         state.multiLevelSummaries = multilevelSummaries;
         // setContentRootState({...state});
 
         const multilevelNotes = await fetchMultiLevelNotes(multilevelSummaries);
-        console.log("Multilevel Notes:", multilevelNotes);
+                console.log("Multilevel Notes:", multilevelNotes);
         state.multiLevelNotes = multilevelNotes;
 
         const keywordSummaries = await generateKeywordSummaries(fullArticle);
@@ -136,6 +144,6 @@ export class State {
     this.url = document.URL;
     this.multiLevelSummaries = {};
     this.multiLevelNotes = {};
-    this.keywordSummaries = {}
+    this.keywordSummaries = {};
   }
 }
