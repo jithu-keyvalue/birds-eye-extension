@@ -5,10 +5,12 @@ import { State } from '../content';
 
 // accept props in the functional component
 // const ButtonComponent: React.FC = () => {
-const ButtonComponent = ( { state } : { state:State } ) => {
+const ButtonComponent = ( { state, onLevelChange } : { state:State, onLevelChange: Function } ) => {
   const {innerWidth, innerHeight} = window;
   const [position, setPosition] = useState({ x: innerWidth-50, y: innerHeight-50 });
   const [dragging, setDragging] = useState(false);
+  const [isClickable, setClickable] = useState(true);
+
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   // This useEffect will handle mouse move events even outside the button container
@@ -21,6 +23,7 @@ const ButtonComponent = ( { state } : { state:State } ) => {
           x: e.clientX,
           y: e.clientY,
         });
+        setClickable(false);
       }
     };
 
@@ -40,8 +43,9 @@ const ButtonComponent = ( { state } : { state:State } ) => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [dragging]);
-
+  
   const handleMouseDown = () => {
+    setClickable(true);
     setDragging(true);
   };
 
@@ -57,10 +61,9 @@ const ButtonComponent = ( { state } : { state:State } ) => {
         className="floating-button"
         onMouseDown={handleMouseDown}
         onClick={() => {
-          state.level += 1;
-          console.log(state);
-        }
-        }
+          if(isClickable)
+            onLevelChange(state.level+1);
+        }}
       >
         <img src={birdsEyeLogo} alt="Birds Eye Logo" />
       </button>
