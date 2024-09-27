@@ -48,9 +48,7 @@ export async function fetchFullArticle(url: string) {
   return data.choices[0].message.content.trim();
 }
 
-export async function fetchMultiLevelSummaries(url: string) {
-  const fullArticle = await fetchFullArticle(url);
-  
+export async function fetchMultiLevelSummaries(fullArticle: string) {  
   const originalWordCount = fullArticle.split(/\s+/).length;  // Count words in the full article
 
   // Define target word counts
@@ -114,7 +112,8 @@ export async function fetchMultiLevelSummaries(url: string) {
 export async function fetchMultiLevelNotes(summaries: Record<string, string>) {
 
     const notesPrompt = `
-    You are a study note generator. Your task is to create highly abstract and easy-to-remember notes from the summaries provided. These notes should be concise and use markdown formatting for clear structure, including bullet points and headings where appropriate. The output should be in the following JSON format:
+    You are a study note generator. Your task is to create notes from the summaries provided. These notes should be concise and use markdown formatting in bullet points. It should be as succinct as possible while retaining the key points.
+    The output should be in the following JSON format:
     {{
         "1": "Note for summary 1",
         "2": "Note for summary 2",
@@ -145,5 +144,33 @@ export async function fetchMultiLevelNotes(summaries: Record<string, string>) {
     const data = await response.json();
     return JSON.parse(data.choices[0].message.content.trim());
   }
+
+
+export async function generateKeywordSummaries(fullArticle: string) {
+
+  const keywordsPrompt = `
+   You are a keyword extraction and describing model. Your task is to identify key terms or phrases from the following article and provide a brief description for each. Please ensure to exclude any conclusions. We are expecting atmost 20 keywords. keep that in mind while extracting key terms or phrases. Only include general terms which are new or hot to the topic. Exclude extremely specific topics. For the section detailing key features, split each feature into its own entry. You don't need to add all the keywords as new entries. The output should be in JSON format with keywords as keys and their corresponding brief summaries as values. The outpust should strictly be a json and shouldn't contain any markdowns.
+   Here is the article:
+  `
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: "system", content: keywordsPrompt },
+        { role: "user", content: fullArticle }
+      ],
+      temperature: 0.1  // Adjusted temperature as in Python code
+    })
+  });
+
+  const data = await response.json();
+  return JSON.parse(data.choices[0].message.content.trim());
+}
 
 

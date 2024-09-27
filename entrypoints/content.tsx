@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import ButtonComponent from "./content/ButtonComponent";
 import React from "react";
 import CustomLayout from "./content/CustomLayout";
-import { fetchMultiLevelNotes, fetchMultiLevelSummaries } from "./content/api";
+import { fetchFullArticle, fetchMultiLevelNotes, fetchMultiLevelSummaries, generateKeywordSummaries } from "./content/api";
 
 export default defineContentScript({
   matches: ["*://*/*"],
@@ -26,7 +26,18 @@ export default defineContentScript({
     );
 
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.counter >= 0) handleLevelChange(message.counter);
+      if (message.counter >= 0) {
+        handleLevelChange(message.counter);
+      }
+
+      if (message.message === "is-logged-in?") {
+        sendResponse({ message: state.isLoggedIn ? "logged-in" : "not-logged-in", level: state.level });
+        return true;
+      }
+      
+      if (message.message === "logged-in") {
+        state.isLoggedIn = true;
+      }
     });
 
     // Function to handle level change (from button or other components)
@@ -69,7 +80,8 @@ export const ContentReactRoot = ({ state }: { state: State }) => {
 
     const fetchSummaries = async () => {
       try {
-        const multilevelSummaries = await fetchMultiLevelSummaries(url);
+        const fullArticle = await fetchFullArticle(url);
+        const multilevelSummaries = await fetchMultiLevelSummaries(fullArticle);
         console.log("Multilevel Summaries:", multilevelSummaries);
         state.multiLevelSummaries = multilevelSummaries;
         // setContentRootState({...state});
@@ -77,6 +89,11 @@ export const ContentReactRoot = ({ state }: { state: State }) => {
         const multilevelNotes = await fetchMultiLevelNotes(multilevelSummaries);
         console.log("Multilevel Notes:", multilevelNotes);
         state.multiLevelNotes = multilevelNotes;
+
+        const keywordSummaries = await generateKeywordSummaries(fullArticle);
+        console.log("Keyword Summaries:", keywordSummaries);
+        state.keywordSummaries = keywordSummaries;
+
         setContentRootState({ ...state });
       } catch (error) {
         console.error(error);
@@ -109,6 +126,7 @@ export class State {
   public url;
   public multiLevelSummaries;
   public multiLevelNotes;
+  public keywordSummaries;
 
   constructor() {
     this.level = 0; // Initial level is 0
@@ -118,5 +136,6 @@ export class State {
     this.url = document.URL;
     this.multiLevelSummaries = {};
     this.multiLevelNotes = {};
+    this.keywordSummaries = {}
   }
 }

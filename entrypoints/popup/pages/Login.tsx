@@ -2,18 +2,20 @@ import React from 'react'
 import BirdIcon from '@/assets/icons/bird-icon.png'
 import GoogleIcon from '@/assets/icons/google-icon.png'
 import './Login.scss'
-import { Link, redirect } from 'react-router-dom'
+import { Link, redirect, useNavigate } from 'react-router-dom'
 
 
 
 const Login = () => {
+  const navigate = useNavigate();
   useEffect(()=>{
-    browser.runtime.sendMessage({type: 'get-logged-in'}).then((response)=>{
-      console.log(response)
-      if(response.loggedIn){
-        redirect('/summary')
-      }
-    })
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs: any) => {
+      chrome.tabs.sendMessage(tabs[0].id, {message: 'is-logged-in?'}, (response: any) => {
+        if(response && response.message === 'logged-in'){
+          navigate('/summary');
+        }
+      });
+    });
   }, []);
 
   return (
@@ -26,7 +28,9 @@ const Login = () => {
       </p>
       <Link to={'/summary'} className='signin-button' onClick={
         ()=>{
-          browser.runtime.sendMessage({type: 'set-logged-in', loggedIn: true})
+          chrome.tabs.query({active: true, currentWindow: true}, (tabs: any) => {
+            chrome.tabs.sendMessage(tabs[0].id, {message: 'logged-in'});
+          });
         }
       }>
         <img src={GoogleIcon} alt="" className='google-icon'/>

@@ -2,10 +2,10 @@ import React from 'react'
 import './Layout.scss'
 import { Outlet } from 'react-router-dom'
 
-const Layout = () => {
+const Layout = (props:any) => {
   return (
     <main className='layout'>
-      <Outlet />
+      <Outlet context={props} />
     </main>
   )
 }
