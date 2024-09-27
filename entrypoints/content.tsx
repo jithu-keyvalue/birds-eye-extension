@@ -1,6 +1,8 @@
 import { createRoot } from "react-dom/client";
 import ButtonComponent from "./content/ButtonComponent";
 import React from "react";
+import CustomLayout from "./content/CustomLayout";
+import { fetchMultiLevelNotes, fetchMultiLevelSummaries } from "./content/api";
 
 export default defineContentScript({
   matches: ['*://*/*'],
@@ -11,46 +13,87 @@ export default defineContentScript({
     const floatingButton = document.createElement('div');
     const root = document.createElement('div');
 
+    const floatingButtonRoot = createRoot(floatingButton);
+    const rootRoot = createRoot(root);
+    
     // Add root containers to the body
     document.body.appendChild(floatingButton);
     document.body.appendChild(root);
 
     // Render the floating button which will control the state
-    createRoot(floatingButton).render(<ButtonComponent state={state} onLevelChange={handleLevelChange} />);
+    floatingButtonRoot.render(<ButtonComponent state={state} onLevelChange={handleLevelChange} />);
+    rootRoot.render(<ContentReactRoot state={state} />);
+    
 
     // Function to handle level change (from button or other components)
     function handleLevelChange(newLevel: number) {
       state.level = newLevel;
+      console.log('clicked')
       updateContent();
     }
-
+    
     // Function to update the content based on the current level
     function updateContent() {
+      console.log('updatecontent')
       if (state.level !== 0) {
         // If level is not 0, show custom content
         document.body.innerHTML = ''; // Clear the body
         document.body.appendChild(root); // Attach root element for React rendering
-        createRoot(root).render(<ContentReactRoot state={state} />);
+        // let rootRoot;
+        // if(!rootRoot) {
+        //   rootRoot = createRoot(root);
+        //   rootRoot.render(<ContentReactRoot state={state} />);
+        // }
         document.body.appendChild(floatingButton); // Re-attach floating button
       } else {
         // If level is 0, restore the original HTML
         document.body.innerHTML = state.originalHtml;
         document.body.appendChild(floatingButton); // Re-attach floating button
+        // floatingButtonRoot.render(<ButtonComponent state={state} onLevelChange={handleLevelChange} />);
       }
     }
-
     // Initial content is the original page
     updateContent();
   }
 });
 
 // React component for custom content layout
-export const ContentReactRoot = ({ state }) => {
+export const ContentReactRoot = ({ state }:{ state:State }) => {
+  const [ contentRootState, setContentRootState ] = React.useState<any>(state);
+  useEffect(() => {
+    const url = state.url;
+
+    const fetchSummaries = async () => {
+      try {
+        const multilevelSummaries = await fetchMultiLevelSummaries(url);
+        console.log('Multilevel Summaries:', multilevelSummaries);
+        state.multiLevelSummaries = multilevelSummaries;
+        // setContentRootState({...state});
+
+        const multilevelNotes = await fetchMultiLevelNotes(multilevelSummaries);
+        console.log('Multilevel Notes:', multilevelNotes);
+        state.multiLevelNotes = multilevelNotes;
+        setContentRootState({...state});
+        
+      }
+      catch (error) {
+        console.error(error);
+      }
+    };
+    if(Object.values(contentRootState.multiLevelSummaries).length === 0 || 
+    Object.values(contentRootState.multiLevelNotes).length === 0
+  )
+    fetchSummaries();
+
+  }, [state.multiLevelNotes, state.multiLevelSummaries]);
+
+  useEffect(() => {
+    setContentRootState({...state});
+  }, [state.level]);
+  
   return (
     <div>
-      <h1>Custom Layout for {state.mode} Mode</h1>
-      <p>Level: {state.level}</p>
-      {/* Add more React components as needed */}
+      <CustomLayout state={contentRootState} />
     </div>
   );
 }
@@ -60,10 +103,18 @@ export class State {
   public level;
   public mode;
   public originalHtml;
+  public isLoggedIn;
+  public url;
+  public multiLevelSummaries;
+  public multiLevelNotes;
 
   constructor() {
     this.level = 0; // Initial level is 0
     this.mode = 'professional'; // Initial mode
     this.originalHtml = document.body.innerHTML; // Store the original HTML
+    this.isLoggedIn = false;
+    this.url = document.URL;
+    this.multiLevelSummaries = {};
+    this.multiLevelNotes = {};
   }
 }
