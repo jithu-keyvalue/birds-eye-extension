@@ -1,0 +1,125 @@
+.container {
+  padding: 18px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  padding: 5px;
+}
+
+.headerIcon {
+  width: 30px;
+}
+
+.welcomeMessage {
+  margin-left: 8px;
+  color: #4a3500;
+}
+
+.headerTextLight {
+  font-size: 10px;
+}
+
+.headerTextBold {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.content {
+  margin-top: 24px;
+}
+
+.subscription {
+  border-radius: 4px;
+  background: rgba(251, 178, 25, 0.15);
+  padding: 8px;
+}
+
+.subscriptionMessage {
+  color: #4a3500;
+  font-size: 12px;
+  width: 176px;
+}
+
+.subscriptionMessage > span {
+  font-weight: 600;
+}
+
+.upgradeButton {
+  background-color: #4a3500;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.upgradeText {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 4px;
+  margin-top: 2px;
+}
+
+.controlContainer {
+  margin-top: 16px;
+}
+
+.controlText {
+  color: #4a3500;
+  font-size: 14px;
+}
+
+.control {
+  color: #4a3500;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summaryStyle {
+  padding-bottom: 14px;
+  border-bottom: 1px solid #efefef;
+}
+
+.summaryLevel {
+  padding-bottom: 5px;
+  border-bottom: 1px solid #efefef;
+}
+
+.controlsToggle {
+  padding-bottom: 14px;
+}
+
+.slider {
+  margin-top: 8px;
+}
+
+.footer {
+  margin-top: 24px;
+}
+
+.textGrayLight {
+  color: #b4b4b4;
+  font-size: 12px;
+}
+
+.textGray {
+  color: #767676;
+  font-size: 12px;
+}
+
+.manageAccount {
+  display: flex;
+  align-items: center;
+}
+
+.gotoAccountIcon {
+  margin-left: 2px;
+}
