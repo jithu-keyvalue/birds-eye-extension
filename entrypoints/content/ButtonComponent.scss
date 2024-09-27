@@ -1,0 +1,40 @@
+.base-position{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    padding: 50px;
+    box-sizing: border-box;
+    /* allow to click the background */
+    z-index: 1200;
+    pointer-events: none;
+    
+    .floating-button {
+        position: relative;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        padding: 0;
+        margin: 0;
+        border: none;
+        clip-path: circle(50%);
+        cursor: pointer;
+        pointer-events: auto;
+        /* transform: translate(-50%, -50%); */
+
+        transition: transform 0.3s;
+        /* disable dragging image */
+
+        img {
+            height: 100%;
+            width: 100%;  
+            -webkit-user-drag: none;
+        }
+    
+        &:hover {
+            transform: scale(1.1);
+            /* box-shadow: 0 0 10px 0 rgba(197, 189, 189, 0.377); */
+        }
+    }
+}

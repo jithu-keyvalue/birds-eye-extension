@@ -9,12 +9,20 @@ import Layout from './pages/Layout';
 
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <div>
-      hello World
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={ <Layout/> } >
+            <Route index element={ <Login /> } />          
+            <Route path='/summary' element={ <SummarySettings /> } />          
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      <div>
+        hello
+      </div>
+    </>
   );
 }
 
