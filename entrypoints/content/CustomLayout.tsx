@@ -26,12 +26,6 @@ const CustomLayout = ({ state }:{ state:State }) => {
     <div>
         {
           multiLevelSummaries && 
-          // Object.values(multiLevelSummaries).map((summary:string, index:number) => (
-          //   <div key={index}>
-          //     <h3>{index}</h3>
-          //     <Markdown>{summary}</Markdown>
-          //   </div>
-          // ))
           <Markdown>
             {multiLevelSummaries[level]}
           </Markdown>            
@@ -39,12 +33,6 @@ const CustomLayout = ({ state }:{ state:State }) => {
 
         {
           multiLevelNotes && 
-          // Object.values(multiLevelNotes).map((note:string, index:number) => (
-          //   <div key={index}>
-          //     <h3>{index}</h3>
-          //     <Markdown>{note}</Markdown>
-          //   </div>
-          // ))
           <Markdown>
             {multiLevelNotes[level]}
           </Markdown>

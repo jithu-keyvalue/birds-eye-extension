@@ -12,6 +12,19 @@ const SummarySettings = () => {
   const [level, setLevel] = useState(1);
   const [toggleControls, setToggleControls] = useState(true);
 
+  const sendMessageToContentScript = () => {
+    // Send a message to the content script
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        counter: level,
+      });
+    });
+  };
+
+  useEffect(() => {
+    sendMessageToContentScript();
+  }, [level]);
+
   const handleLevelChange = (event: any) => {
     setLevel(event.target.value);
   };
