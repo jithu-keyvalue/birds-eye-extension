@@ -3,38 +3,50 @@ import { State } from "../content";
 import Markdown from "react-markdown";
 import birdIcon from "@/assets/icons/bird-icon.png";
 import closeIcon from "@/assets/icons/close-icon.svg";
-import kidsIcon from "@/assets/icons/kids-mode-icon.png";
+import normalIcon from "@/assets/icons/normal.png";
+import beginnerIcon from "@/assets/icons/beginner.png";
+import friendlyIcon from "@/assets/icons/friendly.png";
+import advancedIcon from "@/assets/icons/advanced.png";
+import chevronDown from "@/assets/icons/chevronDown.svg";
 import professionalIcon from "@/assets/icons/professional-mode-icon.png";
 import notesIcon from "@/assets/icons/notes-icon.svg";
-import largeBirdIcon from "@/assets/icons/bird-icon-large.svg";
+import largeBirdIcon from "@/assets/icons/bird-icon-large.png";
 import swirlArrowIcon from "@/assets/icons/swirl-arrow.svg";
 import sendIcon from "@/assets/icons/send-icon.svg";
-import "./CustomLayout.scss";
+import './CustomLayout.scss'
+import CustomSlider from "../popup/Components/CustomSlider";
+import CustomDropdown from "../popup/Components/CustomDropDown";
 
-const CustomLayout = ({ state }: { state: State }) => {
-  const [multiLevelSummaries, setMultiLevelSummaries] = React.useState<
-    Record<string, string>
-  >(state.multiLevelSummaries);
+const CustomLayout = ({ state, handleLevelChange }: { state: State, handleLevelChange:Function }) => {
+  const [multiToneSummeries, setMultiToneSummaries] = React.useState<
+    Record<string, Record<string, string>>
+  >(state.multiToneSummeries);
+  // const [multiLevelSummaries, setMultiToneSummaries] = React.useState<Record<string,string>>(state.multiLevelSummaries);
   const [multiLevelNotes, setMultiLevelNotes] = React.useState<
     Record<string, string>
   >(state.multiLevelNotes);
   const [level, setLevel] = React.useState<number>(state.level);
 
   const [selectedOption, setSelectedOption] = useState("NOTES");
-  const [selectedView, setSelectedView] = useState("CASUAL");
+  const [selectedTone, setSelectedTone] = useState("Normal");
+  const [saved, setSaved] = useState(false);
   const notes = multiLevelNotes[`${state.level}`];
   const question = "";
-  const content = multiLevelSummaries[`${state.level}`];
+  const content = multiToneSummeries[`${state.level}`] && multiToneSummeries[`${state.level}`][selectedTone];
 
   useEffect(() => {
     if (state.multiLevelSummaries) {
-      setMultiLevelSummaries(state.multiLevelSummaries);
+      setMultiToneSummaries(state.multiToneSummeries);
       console.log("Multilevel Summaries:", state.multiLevelSummaries);
 
       setMultiLevelNotes(state.multiLevelNotes);
       console.log("Multilevel Notes:", state.multiLevelNotes);
     }
   }, [state.multiLevelSummaries]);
+
+  // const handleLevelChange = (event: any) => {
+  //   setLevel(event.target.value);
+  // };
 
   return (
     <div className="custom-layout">
@@ -43,7 +55,7 @@ const CustomLayout = ({ state }: { state: State }) => {
           <img src={birdIcon} alt="Birds Eye Logo" className="bird-icon" />
           BIRD'S EYE SUMMARY VIEW
         </span>
-        <button className="topbar-components">
+        <button className="topbar-components" onClick={()=>handleLevelChange(0)}>
           CLOSE SUMMARY
           <img src={closeIcon} alt="close" className="close-icon" />
         </button>
@@ -53,34 +65,77 @@ const CustomLayout = ({ state }: { state: State }) => {
         <div className="summary-modes">
           <button
             onClick={() => {
-              setSelectedView("KIDS");
+              setSelectedTone("Normal");
             }}
           >
-            <img src={kidsIcon} alt="close" />
+            <img src={normalIcon} alt="close" />
+            Normal Mode
           </button>
           <button
             onClick={() => {
-              setSelectedView("PROFESSIONAL");
+              setSelectedTone("Beginner");
             }}
           >
-            <img src={kidsIcon} alt="close" />
+            <img src={beginnerIcon} alt="close" />
+            Beginner Mode
           </button>
           <button
             onClick={() => {
-              setSelectedView("CASUAL");
+              setSelectedTone("Friendly");
             }}
           >
-            <img src={professionalIcon} alt="close" />
+            <img src={friendlyIcon} alt="close" />
+            Friendly Mode
           </button>
+          <button
+            onClick={() => {
+              setSelectedTone("Advanced");
+            }}
+          >
+            <img src={advancedIcon} alt="close" />
+            Advanced Mode
+            </button>
         </div>
         {/* {content ? (
           <div className="summary-content">Content Here</div>
         ) : (
           <>skeleton</>
         )} */}
-        <div className="summary-content">
-          <Markdown>{content}</Markdown>
-        </div>
+        <div className="summary-middle-section">{
+          content ?
+            <div className="summary-content">
+                <Markdown>{content}</Markdown>
+            </div>
+            :
+            <div className='summary-loading'>
+              <LoadingBeam />
+            </div>
+          }
+          <div className="bottomBar">
+            <button onClick={()=>{
+              setSaved(!saved);
+            }} className={`collectionButton ${saved?'saved':''}`}>
+              <span>Save to Collections</span>
+              <img src={chevronDown} alt="down arrow" />
+            </button>
+          
+            <div className="summaryLevel controlContainer">
+                  <div className="row">
+                    <div className="controlText">Summary level</div>
+                    <div className="control">{state.level}</div>
+                  </div>
+                  <div className="slider">
+                    <CustomSlider
+                      min={1}
+                      max={5}
+                      level={state.level}
+                      handleChange={(e)=>handleLevelChange(e.target.value)}
+                    />
+                  </div>
+                </div>
+          </div>
+            
+          </div>
 
         <div className="summary-notes">
           <div className="summary-notes-topbar">
@@ -128,14 +183,17 @@ export const NoteSection = ({ selectedOption, notes, question }) => {
   if (selectedOption === "NOTES") {
     if (!notes)
       return (
-        <div className="summary-note-create-container">
-          <div className="summary-note-create">
-            Create notes from the summary you have generated
-            <button className="create-note-button">
-              <img src={notesIcon} alt="notes" className="notes-icon" />
-              Generate notes
-            </button>
-          </div>
+        // <div className="summary-note-create-container">
+        //   <div className="summary-note-create">
+        //     Create notes from the summary you have generated
+        //     <button className="create-note-button">
+        //       <img src={notesIcon} alt="notes" className="notes-icon" />
+        //       Generate notes
+        //     </button>
+        //   </div>
+        // </div>
+        <div className='notes-loading'>
+          <LoadingBeam />
         </div>
       );
     else
@@ -145,10 +203,9 @@ export const NoteSection = ({ selectedOption, notes, question }) => {
         </div>
       );
   } else if (selectedOption === "QUESTIONS") {
-    if (!question)
+
       return (
         <div>
-          <div className="summary-question-create-container">
             <div className="summary-question-create">
               <img src={largeBirdIcon} alt="large-icon" />
               Ask questions about summarised content, and Bird&apos;s Eye
@@ -159,24 +216,13 @@ export const NoteSection = ({ selectedOption, notes, question }) => {
                 className="arrow-icon"
               />
             </div>
-          </div>
-          <div className="question-input-container">
-            <input className="question-input" placeholder="Ask me anything" />
-            <button>
-              <img src={sendIcon} alt="send-icon" />
-            </button>
-          </div>
-        </div>
-      );
-    else
-      return (
-        <div>
-          hi
-          <div className="question-input-container">
-            <input className="question-input" placeholder="Ask me anything" />
-            <button>
-              <img src={sendIcon} alt="send-icon" />
-            </button>
+          <div className="question-input-section">
+            <div className="question-input-container">
+              <input className="question-input" placeholder="Ask me anything" />
+              <button>
+                <img src={sendIcon} alt="send-icon" />
+              </button>
+            </div>
           </div>
         </div>
       );

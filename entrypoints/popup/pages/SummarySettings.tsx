@@ -12,6 +12,15 @@ const SummarySettings = () => {
   const [level, setLevel] = useState(1);
   const [toggleControls, setToggleControls] = useState(true);
 
+  const handleToggleControls = (event: any) => {
+    setToggleControls(event.target.checked);
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any) => {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        floatingControlToggle: event.target.checked? "show" : "hide",
+      });
+    });
+  }
+
   const sendMessageToContentScript = () => {
     // Send a message to the content script
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any) => {
@@ -54,35 +63,12 @@ const SummarySettings = () => {
             </div>
           </div>
           <div className="controls">
-            {toggleControls && (
-              <div className="summaryStyle row controlContainer">
-                <div className="controlText">Summary style</div>
-                <div className="control">
-                  <CustomDropdown
-                    options={[
-                      { key: "option1", value: "Casual" },
-                      { key: "option2", value: "Non-technical" },
-                    ]}
-                  />
-                </div>
-              </div>
-            )}
-            {toggleControls && (
-              <div className="summaryLevel controlContainer">
-                <div className="row">
-                  <div className="controlText">Summary level</div>
-                  <div className="control">{level}</div>
-                </div>
-                <div className="slider">
-                  <CustomSlider
-                    min={1}
-                    max={10}
-                    level={level}
-                    handleChange={handleLevelChange}
-                  />
-                </div>
-              </div>
-            )}
+            <div className="buttonContainer">
+              <button className="goToVaultButton">
+                Go To Vault
+              </button>
+            </div>
+            
             <div className="controlsToggle row controlContainer">
               <div className="controlText">Show floating controls</div>
               <div>
@@ -90,9 +76,7 @@ const SummarySettings = () => {
                   sx={{ m: 1 }}
                   defaultChecked
                   checked={toggleControls}
-                  onChange={(event: any) =>
-                    setToggleControls(event.target.checked)
-                  }
+                  onChange={handleToggleControls}
                 />
               </div>
             </div>

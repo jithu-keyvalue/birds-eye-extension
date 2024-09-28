@@ -1,4 +1,4 @@
-const API_KEY = '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';
+const API_KEY = 'dummy';
 const apiUrl = 'https://api.openai.com/v1/chat/completions';
 
 export async function fetchFullArticle(url: string) {
@@ -172,5 +172,50 @@ export async function generateKeywordSummaries(fullArticle: string) {
   const data = await response.json();
   return JSON.parse(data.choices[0].message.content.trim());
 }
+
+
+export async function generateMultiToneSummeriesPerLevel(summary: Record<string, string>) {
+
+  const tonePrompt = `You are a tone adjustment model. I will provide you with a summary for all levels, and your task is to rewrite that summary in four different tones: Beginner, Friendly, Advanced, and Normal. The output should be structured as a JSON object with the level as the key, and the four tones as sub-keys.
+    - **Beginner Mode**: Use simple and clear language appropriate for someone new to the topic.
+    - **Friendly Mode**: Use warm, friendly language, as if explained by a close friend with a casual, supportive tone.
+    - **Advanced Mode**: Use formal and technical tone appropriate for an expert audience.
+    - **Normal Mode**: Keep the summary unchanged.
+    For each level in the summary there would be 4 modes of outputs and the output must look like this (note the nested structure):
+    {{
+        "<level>": {{
+            "Normal": "Original summary for that level",
+            "Beginner": "Simplified version for beginners",
+            "Friendly": "Friendly version of the summary",
+            "Advanced": "Technical, advanced version"
+        }}
+    }}
+    NOTES:
+      1. The output should strictly a valid json without any markdowns. Json values can contain markdowns. It should not be partial
+      2. You should preserve the markdown of input summaries while adjusting the tone.
+    Here's the summary :
+    ${summary}
+  `
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: "system", content: tonePrompt },
+        { role: "user", content: JSON.stringify(summary) }
+      ],
+      temperature: 0.1  // Adjusted temperature as in Python code
+    })
+  });
+
+  const data = await response.json();
+  return JSON.parse(data.choices[0].message.content.trim());
+}
+
 
 

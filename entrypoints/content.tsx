@@ -7,12 +7,16 @@ import {
   fetchMultiLevelNotes,
   fetchMultiLevelSummaries,
   generateKeywordSummaries,
+  generateMultiToneSummeriesPerLevel,
 } from "./content/api";
 
 export default defineContentScript({
   matches: ["*://*/*"],
   main() {
     const state = new State();
+
+    // add listener to listen for shift + scroll
+    
 
     // Create root elements for the floating button and the custom layout
     const floatingButton = document.createElement("div");
@@ -39,12 +43,23 @@ export default defineContentScript({
         sendResponse({
           message: state.isLoggedIn ? "logged-in" : "not-logged-in",
           level: state.level,
+          toggle: state.toggle? "show": "hide"
         });
         return true;
       }
 
       if (message.message === "logged-in") {
         state.isLoggedIn = true;
+      }
+
+      if (message.floatingControlToggle==="show") {
+        floatingButton.style.display = "block";
+        state.toggle = true;
+      }
+
+      if (message.floatingControlToggle==="hide") {
+        floatingButton.style.display = "none";
+        state.toggle = false;
       }
     });
 
@@ -56,7 +71,7 @@ export default defineContentScript({
 
     // Function to update the content based on the current level
     function updateContent() {
-      rootRoot.render(<ContentReactRoot state={state} />);
+      rootRoot.render(<ContentReactRoot state={state} handleLevelChange={handleLevelChange} />);
       if (state.level !== 0) {
         // If level is not 0, show custom content
         document.body.innerHTML = ""; // Clear the body
@@ -80,7 +95,7 @@ export default defineContentScript({
 });
 
 // React component for custom content layout
-export const ContentReactRoot = ({ state }: { state: State }) => {
+export const ContentReactRoot = ({ state, handleLevelChange }: { state: State, handleLevelChange:Function }) => {
   const [contentRootState, setContentRootState] = React.useState<any>(state);
 
   useEffect(() => {
@@ -93,6 +108,9 @@ export const ContentReactRoot = ({ state }: { state: State }) => {
                 console.log("Multilevel Summaries:", multilevelSummaries);
         state.multiLevelSummaries = multilevelSummaries;
         // setContentRootState({...state});
+
+        const multiToneSummeries = await generateMultiToneSummeriesPerLevel(multilevelSummaries);
+        state.multiToneSummeries = multiToneSummeries;
 
         const multilevelNotes = await fetchMultiLevelNotes(multilevelSummaries);
                 console.log("Multilevel Notes:", multilevelNotes);
@@ -120,7 +138,7 @@ export const ContentReactRoot = ({ state }: { state: State }) => {
 
   return (
     <div>
-      <CustomLayout state={contentRootState} />
+      <CustomLayout state={contentRootState} handleLevelChange={handleLevelChange} />
     </div>
   );
 };
@@ -135,6 +153,8 @@ export class State {
   public multiLevelSummaries;
   public multiLevelNotes;
   public keywordSummaries;
+  public multiToneSummeries;
+  public toggle;
 
   constructor() {
     this.level = 0; // Initial level is 0
@@ -145,5 +165,7 @@ export class State {
     this.multiLevelSummaries = {};
     this.multiLevelNotes = {};
     this.keywordSummaries = {};
+    this.multiToneSummeries = {};
+    this.toggle = true;
   }
 }
